@@ -61,6 +61,7 @@
       "select-files-to-upload-for-either-the-transmitter-or-the-receiver": "Select files to upload for either the transmitter or the receiver",
       "transmitter-file": "Transmitter file",
       "upload": "Upload",
+      "configuration": "Configuration",
       "receiver-file": "Receiver file",
       "file": "File",
       "remove" : "Remove",

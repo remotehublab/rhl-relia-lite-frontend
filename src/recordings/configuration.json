@@ -1,0 +1,36 @@
+{
+    "Frequency / Wavelength": {
+        "name": "freqency-wavelength",
+        "values": [
+            "800 MHz / 37.5 cm" ,
+            "1200 MHz / 25 cm",
+            "1800 MHz / 16.66 cm"
+        ]
+    },
+
+    "Target Velocity": {
+        "name": "target-velocity",
+        "values": [
+            "Slow",
+            "Medium",
+            "Fast"
+        ]
+    },
+
+    "Bandwidth": {
+       "name": "bandwidth",
+       "values": [ 
+            "100 KHz",
+            "200 KHz",
+            "500 KHz"
+        ]
+    },
+
+    "Low Pass Filter": {
+        "name": "low-pass",
+        "values": [ 
+            "Enable",
+            "Disable"
+        ]
+    }
+}

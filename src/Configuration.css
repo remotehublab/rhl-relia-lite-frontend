@@ -1,0 +1,158 @@
+
+/** {*/
+/*  border: 1px dotted red !important;*/
+
+/*}*/
+
+.outer-container {
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    background-color: white;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  }
+  
+  .laboratory-container {
+  }
+  
+  .laboratory-status-message {
+    padding-top: 2em;
+    padding-bottom: 2em;
+  }
+  
+  .footer-container {
+    position: sticky;
+    bottom: 0;
+    background-color: red;
+  }
+  
+  .introduction-container {
+    width: 65% !important;
+    margin-top: 2.5%;
+    margin-bottom: 5%;
+  }
+  
+  .loader-col{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-top: 2%;
+    padding-bottom: 2%;
+  }
+  
+  .images-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-bottom: 1px solid #646464;
+    height: 30%;
+  }
+  .image {
+    width: 68%;
+  }
+  
+  .timer-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-top: 2%;
+    padding-bottom: 2%;
+  }
+  
+  .button-container {
+    display: flex;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+    margin-top: 10%;
+    padding-top: 2%;
+    padding-bottom: 2%;
+  }
+  
+  .header-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-top: 2%;
+    padding-bottom: 2%;
+  }
+  
+  .sender-container {
+    margin-top: 3%;
+  }
+  
+  .relia-title {
+    text-align: center;
+  }
+  
+  .pills-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-top: 2%;
+    padding-bottom: 2%;
+  }
+  
+  .form-col {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-top: 2%;
+    padding-bottom: 2%;
+  }
+  
+  .radio-col {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-top: 2%;
+    padding-bottom: 2%;
+  }
+  
+  .remove-col {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-top: 2%;
+    padding-bottom: 2%;
+  }
+  
+  .file-name-col {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-top: 2%;
+    padding-bottom: 2%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  .image-col {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .radio-buttons {
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    margin-bottom: 20px;
+  }
+  
+  .radio-buttons label {
+    margin-bottom: 5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+  }
+  
+  .radio-buttons input[type="radio"] {
+    margin-left:  15px;
+    margin-right: 5px;
+  }
+  
+  .radio-buttons p {
+    margin-bottom: 5px;
+  }
+  

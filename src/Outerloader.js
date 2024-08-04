@@ -27,6 +27,8 @@ import {
 } from 'react-bootstrap';
 import './Loader.css';
 import Loader from "./Loader";
+import { numOptions, emptyOptions } from './Configuration';
+import Configuration from "./Configuration";
 import Laboratory from "./Laboratory";
 import Introduction from "./Introduction";
 
@@ -40,8 +42,8 @@ import RHL_logo from './components/images/RHL-logo.png';
  * Renders the Outerloader component.
  *
  *   The {@code Outerloader} component acts as the main interface for the Relia educational lab environment.
- *   It offers navigational controls to switch between various segments of the lab such as Introduction, File Loading,
- *   and Laboratory. This component is responsible for managing user sessions, handling file uploads,
+ *   It offers navigational controls to switch between various segments of the lab such as Introduction, Configuration,
+ *   and Laboratory. This component is responsible for managing user sessions, handling experiment configurations,
  *   and rendering content dynamically based on the user's interaction and current state.
  *
  * State:
@@ -78,10 +80,13 @@ function Outerloader() {
     const [selectedFilesColumnRX, setSelectedFilesColumnRX] = useState([]);
     const [selectedFilesColumnTX, setSelectedFilesColumnTX] = useState([]);
 
+    // Initializes an object [1: null, 2: null, ... , numOptions: null] to store configuration
+    // null signifies no option is selected
+    const [selectedConfiguration, setConfiguration] = useState(emptyOptions);
 
 
     const [fileStatus, setFileStatus] = useState(<a href="https://rhlab.ece.uw.edu/projects/relia/" target="_blank" rel="noopener noreferrer">
-            Upload GNU radio files to proceed
+            Upload GNU radio files to proceed TEST
         </a>);
 
     // Set a global variable for the base API URL.
@@ -127,7 +132,7 @@ function Outerloader() {
     }, []);
 
     useEffect(() => {
-        if ((selectedTab === "introduction" || selectedTab === "loadFiles") && (
+        if ((selectedTab === "introduction" || selectedTab === "configuration") && (
             // skip completed
             currentSession.status === "queued"
             //  skip deleted
@@ -150,13 +155,17 @@ function Outerloader() {
      *
      * @returns {JSX.Element | null} - The content to be rendered for the selected tab. Returns a JSX
      *                                 Element corresponding to the selected tab ('introduction',
-     *                                 'loadFiles', or 'laboratory'). Returns null if no tab matches.
+     *                                 'configuration', or 'laboratory'). Returns null if no tab matches.
      */
     const renderContent = () => {
         switch (selectedTab) {
             case 'introduction':
                 return <Introduction currentSession={currentSession} setCurrentSession={setCurrentSession}/> ;
-            case 'loadFiles':
+            case 'configuration':
+                return <Configuration currentSession={currentSession} setCurrentSession={setCurrentSession} setSelectedTab={setSelectedTab}
+                                       setConfiguration={setConfiguration} selectedConfiguration={selectedConfiguration}/> ;
+                                      
+            case 'load-files':
                 return <Loader currentSession={currentSession} setCurrentSession={setCurrentSession} setSelectedTab={setSelectedTab}
                                storedFiles={storedFiles} setStoredFiles={setStoredFiles} setSelectedFilesColumnRX={setSelectedFilesColumnRX}
                                 selectedFilesColumnRX={selectedFilesColumnRX} selectedFilesColumnTX={selectedFilesColumnTX} setSelectedFilesColumnTX={setSelectedFilesColumnTX}
@@ -487,8 +496,8 @@ function Outerloader() {
                             </Nav.Link>
                         </Nav.Item>
                         <Nav.Item>
-                            <Nav.Link eventKey="loadFiles" onClick={() => setSelectedTab('loadFiles')} className={"pill"}>
-                                2. {t("loader.upload.load-files")}
+                            <Nav.Link eventKey="configuration" onClick={() => setSelectedTab('configuration')} className={"pill"}>
+                                2. {t("loader.upload.configuration")}
                             </Nav.Link>
                         </Nav.Item>
                         <Nav.Item>

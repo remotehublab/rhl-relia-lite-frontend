@@ -1,0 +1,30 @@
+{
+    "Frequency / Wavelength": [
+        "800 MHz / 37.5 cm" ,
+        "1200 MHz / 25 cm",
+        "1800 MHz / 16.66 cm"
+    ],
+
+    "Target Velocity": [
+        "Slow",
+        "Medium",
+        "Fast"
+    ],
+
+    "Bandwidth": [
+        "100 KHz",
+        "200 KHz",
+        "500 KHz"
+    ],
+
+    "Lowpass Filter": [
+        "Enable",
+        "Disable"
+    ],
+
+    "TESTING COL": [
+        "Cat",
+        "Dog",
+        "Fish"
+    ]
+}
