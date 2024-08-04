@@ -40,6 +40,7 @@ export const emptyOptions = getEmptyOptions(); // {Option1: null, ... , Optionnu
  * @param {Function} setSelectedTab - Function to set the selected tab (intro/files/lab).
  * @param {Function} setConfiguration - Function to set the selected configuration
  * @param {Object} selectedConfiguration - Object holding the current state of the configuration
+ * @param {Function} loadConfiguration - Function to load the selected configuration in the laboratory tab
  * 
  * @returns {JSX.Element} The rendered Loader component.
  */
@@ -48,7 +49,8 @@ function Configuration({
     setCurrentSession,
     setSelectedTab,
     setConfiguration,
-    selectedConfiguration
+    selectedConfiguration,
+    loadConfiguration
 }) {
 
     const selectOption = (column, option) => {
@@ -59,7 +61,7 @@ function Configuration({
         return Object.keys(configuration).map((parameter, index) => (
             <Col key={index}>
                 <Col className="radio-buttons">
-                    <p><b>{configuration[parameter].name}</b></p>
+                    <p><b>{t("loader.configuration." + configuration[parameter].name)}</b></p>
                     {configuration[parameter].values.map((option, optionIndex) => (
                         <label key={optionIndex}>
                             <input
@@ -69,7 +71,7 @@ function Configuration({
                                 checked={selectedConfiguration[configuration[parameter].name] === option}
                                 onChange={() => selectOption(configuration[parameter].name, option)}
                             />
-                            {option}
+                            {t("loader.configuration." + option).replace("loader.configuration.", "")}
                         </label>
                     ))}
                 </Col>
@@ -79,12 +81,6 @@ function Configuration({
 
     const allSelected = Object.values(selectedConfiguration).every(option => option !== null);
 
-    const continueToNextPage = () => {
-        if (allSelected) {
-            window.location.href = 'nextpage.html'; // Change this to the URL of your next page
-        }
-    };
-
     return (
         <Container>
             <Col md={{ span: 8, offset: 2 }}>
@@ -92,7 +88,10 @@ function Configuration({
                     {generateOptionsButtons()}
                 </Row>
                 {/* Continue Button */}
-                <button onClick={continueToNextPage} disabled={!allSelected}>Launch Experiment</button>
+                <button className={"loader-button"} onClick={() => loadConfiguration()} 
+                    disabled={!allSelected}>
+                    {t("loader.configuration.load-configuration")}
+                </button>
             </Col>
         </Container>
     );

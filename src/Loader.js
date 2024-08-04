@@ -70,39 +70,39 @@ function Loader({
     //         Upload GNU radio files to proceed
     //     </a>);
 
-    // effect hook that updates the container object  if we ever have more then one file
+    // effect hook that updates the container object if we ever have more then one file
     useEffect(() => {
-    if (selectedFilesColumnTX.length > 0 && selectedFilesColumnRX.length > 0) {
-      setSenderComponent(
-        <Container className={"sender-container"}>
-          <Row>
-            <Col md={{ span: 6, offset: 3 }} className={"loader-col"}>
-              <Button className={"loader-button"} onClick={() => manageTask()}>
-                {t("loader.select.send-to-sdr-devices")}
-              </Button>
-            </Col>
-          </Row>
-        </Container>
-      );
-      // setFileStatus(<a>Ready to upload</a>);
-      setFileStatus(null);
-    } else if (selectedFilesColumnTX.length > 0) {
-        setFileStatus(<span>{t("loader.upload.file-status.select-rx")}</span>);
-        setSenderComponent(<Container/>);
-    } else if (selectedFilesColumnRX.length > 0){
-        setFileStatus(<span>{t("loader.upload.file-status.select-tx")}</span>);
-        setSenderComponent(<Container />);
-    } else {
-        if (storedFiles.length > 0) {
-            setFileStatus(<span>{t("loader.upload.file-status.select-rx-tx")}</span>);
-        }  else {
-            setFileStatus(<span>{t("loader.upload.file-status.upload-gnu")}</span>);
-            //setFileStatus(<span>Upload GNU radio files to proceed. <a href="https://rhlab.ece.uw.edu/projects/relia/" target="_blank" rel="noopener noreferrer">See the docs</a></span>);
-        }
-        setSenderComponent(<Container />);
-    }
-    sendMetaData();
-  }, [selectedFilesColumnTX, selectedFilesColumnRX]);
+      if (selectedFilesColumnTX.length > 0 && selectedFilesColumnRX.length > 0) {
+        setSenderComponent(
+          <Container className={"sender-container"}>
+            <Row>
+              <Col md={{ span: 6, offset: 3 }} className={"loader-col"}>
+                <Button className={"loader-button"} onClick={() => manageTask()}>
+                  {t("loader.select.send-to-sdr-devices")}
+                </Button>
+              </Col>
+            </Row>
+          </Container>
+        );
+        // setFileStatus(<a>Ready to upload</a>);
+        setFileStatus(null);
+      } else if (selectedFilesColumnTX.length > 0) {
+          setFileStatus(<span>{t("loader.upload.file-status.select-rx")}</span>);
+          setSenderComponent(<Container/>);
+      } else if (selectedFilesColumnRX.length > 0){
+          setFileStatus(<span>{t("loader.upload.file-status.select-tx")}</span>);
+          setSenderComponent(<Container />);
+      } else {
+          if (storedFiles.length > 0) {
+              setFileStatus(<span>{t("loader.upload.file-status.select-rx-tx")}</span>);
+          }  else {
+              setFileStatus(<span>{t("loader.upload.file-status.upload-gnu")}</span>);
+              //setFileStatus(<span>Upload GNU radio files to proceed. <a href="https://rhlab.ece.uw.edu/projects/relia/" target="_blank" rel="noopener noreferrer">See the docs</a></span>);
+          }
+          setSenderComponent(<Container />);
+      }
+      sendMetaData();
+    }, [selectedFilesColumnTX, selectedFilesColumnRX]);
 
     /**
      * handleFileChange function is responsible for updating the selectedFiles state

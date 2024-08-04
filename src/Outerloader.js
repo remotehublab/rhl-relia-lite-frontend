@@ -36,6 +36,7 @@ import Introduction from "./Introduction";
 import LabsLand_logo from './components/images/LabsLand-logo.png';
 import UW_logo from './components/images/uw-logo.gif';
 import RHL_logo from './components/images/RHL-logo.png';
+import { select } from 'react-i18next/icu.macro';
 
 
 /**
@@ -83,7 +84,6 @@ function Outerloader() {
     // Initializes an object [1: null, 2: null, ... , numOptions: null] to store configuration
     // null signifies no option is selected
     const [selectedConfiguration, setConfiguration] = useState(emptyOptions);
-
 
     const [fileStatus, setFileStatus] = useState(<a href="https://rhlab.ece.uw.edu/projects/relia/" target="_blank" rel="noopener noreferrer">
             Upload GNU radio files to proceed TEST
@@ -163,7 +163,8 @@ function Outerloader() {
                 return <Introduction currentSession={currentSession} setCurrentSession={setCurrentSession}/> ;
             case 'configuration':
                 return <Configuration currentSession={currentSession} setCurrentSession={setCurrentSession} setSelectedTab={setSelectedTab}
-                                       setConfiguration={setConfiguration} selectedConfiguration={selectedConfiguration}/> ;
+                                       setConfiguration={setConfiguration} selectedConfiguration={selectedConfiguration}
+                                        loadConfiguration={loadConfiguration}/> ;
                                       
             case 'load-files':
                 return <Loader currentSession={currentSession} setCurrentSession={setCurrentSession} setSelectedTab={setSelectedTab}
@@ -324,12 +325,10 @@ function Outerloader() {
             if (response.status === 200) {
                 return response.json();
             } else {
-
-             // TODO
+            // TODO
             console.log('Failed to fetch: Status ' + response.status);
             setFileStatus(<a>Error sending files, please try again</a>);
-
-        }
+            }
         }).then((data) => {
             if (data && data.success) {
                 const newSession = {
@@ -349,12 +348,60 @@ function Outerloader() {
                 setTimeout(checkStatus, 1000 );
                 setSelectedTab("laboratory");
             } else {
-               if (setFileStatus) {
-                setFileStatus(<a>Error sending files, please try again</a>);
+                if (setFileStatus) {
+                    setFileStatus(<a>Error sending files, please try again</a>);
                 }
                 console.error('Failed to create task');
             }
         });
+    };
+
+    /**
+     * Initiates a new configuration for processing and switches the user to the "Laboratory" tab.
+     *
+     * This function is responsible for starting a new processing task with the server.
+     * It sends a POST request to the '/user/tasks/' endpoint to create a new task.
+     * Upon successful creation, the task's details are updated in the current session,
+     * and the user interface is redirected to the "Laboratory" tab where the task progress
+     * can be monitored. This function is an essential part of the workflow in the SDR (Software Defined Radio)
+     * operation setup, where it marks the transition from file selection and setup to the actual
+     * processing and observation phase in the "Laboratory" tab.
+     *
+     * On a successful server response, the current session state is updated with the new task's
+     * identifier, status, and message. This function also initiates a status check loop by calling
+     * `checkStatus` function, which repeatedly checks the status of the newly created task.
+     *
+     * Usage:
+     * This function is typically called when a user has finished selecting the configuration
+     * and is ready to start the processing task. It represents a key action in the
+     * workflow of submitting and monitoring tasks in the application.
+     *
+    */
+    const loadConfiguration = () => {
+        // Create file name based on options
+        var configurationFileName = "";
+        for (const key of Object.keys(selectedConfiguration)) {
+            var selectedOption = selectedConfiguration[key].split(" ")[0];
+            configurationFileName += key + "_" + selectedOption + "_";
+        }
+        configurationFileName = configurationFileName.substring(0, configurationFileName.length-1) + ".json";
+        console.log(configurationFileName);
+        const newSession = {
+            "taskIdentifier": null, //data.taskIdentifier,
+            "status": null, //data.status,
+            "message": null, //data.message,
+            "assignedInstance": null,
+            "assignedInstanceName": t("runner.no-instance-yet"),
+            "transmitterFilename": null,
+            "receiverFilename": null,
+            "cameraUrl": null,
+            "renderingWidgets": currentSession.renderingWidgets,
+        }
+        setCurrentSession(newSession);
+        Object.assign(currentSession, newSession);
+        console.log(currentSession);
+        setTimeout(checkStatus, 1000);
+        setSelectedTab("laboratory");
     };
 
     /**

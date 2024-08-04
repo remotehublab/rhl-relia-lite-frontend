@@ -80,6 +80,18 @@
         "upload-gnu": "Upload GNU radio files to proceed"
       }
     },
+    "configuration": {
+      "load-configuration": "Load Configuration",
+      "freqency-wavelength": "Frequency / Wavelength",
+      "target-velocity": "Target Velocity",
+      "bandwidth": "Bandwidth",
+      "low-pass": "Low Pass Filter",
+      "slow": "Slow",
+      "medium": "Medium",
+      "fast": "Fast",
+      "enable": "Enable",
+      "disable": "Disable"
+    },
     "select": {
       "submit-tasks": "Select existing GNU Radio files",
       "select-a-pair-of-previously-uploaded-transmitter-and-receiver-files-to-execute-for-observation": "Select a pair of previously uploaded transmitter and receiver files to submit",
