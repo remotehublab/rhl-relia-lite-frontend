@@ -58,18 +58,18 @@ function Configuration({
     };
 
     const generateOptionsButtons = () => {
-        return Object.keys(configuration).map((parameter, index) => (
-            <Col key={index}>
+        return configuration.parameters.map((parameter, parameterIndex) => (
+            <Col key={parameterIndex}>
                 <Col className="radio-buttons">
-                    <p><b>{t("loader.configuration." + configuration[parameter].name)}</b></p>
-                    {configuration[parameter].values.map((option, optionIndex) => (
+                    <p><b>{t("loader.configuration." + parameter.name)}</b></p>
+                    {parameter.values.map((option, optionIndex) => (
                         <label key={optionIndex}>
                             <input
                                 type="radio"
-                                name={configuration[parameter].name}
+                                name={parameter.name}
                                 value={option}
-                                checked={selectedConfiguration[configuration[parameter].name] === option}
-                                onChange={() => selectOption(configuration[parameter].name, option)}
+                                checked={selectedConfiguration[parameter.name] === option}
+                                onChange={() => selectOption(parameter.name, option)}
                             />
                             {t("loader.configuration." + option).replace("loader.configuration.", "")}
                         </label>
@@ -98,14 +98,13 @@ function Configuration({
 }
 
 function getNumOptions() {
-    return Object.keys(configuration).length;
+    return configuration.parameters.length;
 }
 
 function getEmptyOptions() {
     const selections = {}
-    for (const option of Object.keys(configuration)) {
-        const name = configuration[option].name;
-        selections[name] = null;
+    for (const parameter of configuration.parameters) {
+        selections[parameter.name] = null;
     }
     return selections;
 }

@@ -211,7 +211,7 @@ function Outerloader() {
                         window.location.href = "https://relia.rhlab.ece.uw.edu"
                 }
 
-                if (data.locale && data.locale != i18n.language) {
+                if (data.locale && data.locale !== i18n.language) {
                     i18n.changeLanguage(data.locale);
                 }
 
@@ -380,9 +380,10 @@ function Outerloader() {
     const loadConfiguration = () => {
         // Create file name based on options
         var configurationFileName = "";
-        for (const key of Object.keys(selectedConfiguration)) {
-            var selectedOption = selectedConfiguration[key].split(" ")[0];
-            configurationFileName += key + "_" + selectedOption + "_";
+        console.log("LOADING CONFIGURATION");
+        for (const parameter of Object.keys(selectedConfiguration)) {
+            var selectedOption = selectedConfiguration[parameter].split(" ")[0];
+            configurationFileName += parameter + "_" + selectedOption + "_";
         }
         configurationFileName = configurationFileName.substring(0, configurationFileName.length-1) + ".json";
         console.log(configurationFileName);
