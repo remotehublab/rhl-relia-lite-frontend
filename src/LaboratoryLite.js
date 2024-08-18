@@ -10,6 +10,7 @@ import { Container, Row, Col } from 'react-bootstrap';
 import  { ReliaWidgets } from "./components/blocks/loaderDevelopment";
 import $ from 'jquery';
 
+import BabylonIframe from './BabylonIFrame';
 
 /**
  * Renders the Introduction component.
@@ -216,7 +217,7 @@ function LaboratoryLite({currentSession, setCurrentSession, reliaWidgets, setRel
                     </center>
                 </Row>
             )}
-            <Row id={"relia-widgets"}> 
+            <Row id={"relia-widgets"}>
                 <Col style={{ display: currentSession.assignedInstance != null ? 'block' : 'none' }} >
                     <center>
                         <h2>{ t("runner.receiver") }</h2>
@@ -235,17 +236,7 @@ function LaboratoryLite({currentSession, setCurrentSession, reliaWidgets, setRel
                 </Col>
             </Row>
             <Row>
-                <iframe
-                    src="https://www.example.com/"
-                    width="800"
-                    height="600"
-                    frameBorder="0"
-                    style={{ border: 0 }}
-                    allowFullScreen
-                    aria-hidden="false"
-                    tabIndex="0"
-                    onLoad={() => console.log('Iframe loaded successfully')}
-                />
+                <BabylonIframe />
             </Row>
         </Container>
     );
