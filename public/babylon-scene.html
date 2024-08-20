@@ -77,16 +77,14 @@
           // Get the bounding box of the table
           const tableBoundingInfo = tableMesh.getBoundingInfo();
           const tableHeight = tableBoundingInfo.boundingBox.maximumWorld.y - tableBoundingInfo.boundingBox.minimumWorld.y;
+          const tableLength = tableBoundingInfo.boundingBox.maximumWorld.x - tableBoundingInfo.boundingBox.minimumWorld.x;
 
           // Load the fan and position it at the end of the table
-          BABYLON.SceneLoader.ImportMesh("", "/models/", "fan2.glb", scene, function (meshes, particleSystems, skeletons, animationGroups) {
-            console.log("Fan Mesh Length: %d", meshes.length);
-            //meshes.shift();
+          BABYLON.SceneLoader.ImportMesh("", "/models/", "fan.glb", scene, function (meshes, particleSystems, skeletons, animationGroups) {
             var fan = meshes[0];
-            console.log("Fan Mesh Length: %d", meshes.length);
-            meshes.forEach((mesh) => console.log(mesh.name));
-            fan.position = new BABYLON.Vector3(0, tableHeight, 0);
-            fan.scaling = new BABYLON.Vector3(10, 10, 10); // Increase the scale as needed
+            fan.position = new BABYLON.Vector3(tableLength / 2.5, tableHeight, 0);
+            fan.rotation = new BABYLON.Vector3(Math.PI, Math.PI, Math.PI);  // rotate fan
+            fan.scaling = new BABYLON.Vector3(4, 4, 4); // increase size
             // Start the fan's animation
             if (animationGroups.length > 0) {
               console.log("ANIMATION STARTING")
