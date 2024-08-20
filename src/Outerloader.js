@@ -26,11 +26,16 @@ import {
     Nav
 } from 'react-bootstrap';
 import './Loader.css';
-import Loader from "./Loader";
+
 import { numOptions, emptyOptions } from './Configuration';
 import Configuration from "./Configuration";
-import Laboratory from "./Laboratory";
+import LaboratoryLite from "./LaboratoryLite";
 import Introduction from "./Introduction";
+
+// old tabs
+import Loader from "./Loader";
+import Laboratory from "./Laboratory";
+
 
 //images
 import LabsLand_logo from './components/images/LabsLand-logo.png';
@@ -72,14 +77,10 @@ function Outerloader() {
         "message": "",
         "assignedInstance": null,
         "assignedInstanceName": "",
-        "receiverFilename": null,
-        "transmitterFilename": null,
+        "dataFileName": null,
         "cameraUrl": null,
         "renderingWidgets": false,
     });
-
-    const [selectedFilesColumnRX, setSelectedFilesColumnRX] = useState([]);
-    const [selectedFilesColumnTX, setSelectedFilesColumnTX] = useState([]);
 
     // Initializes an object [1: null, 2: null, ... , numOptions: null] to store configuration
     // null signifies no option is selected
@@ -155,25 +156,30 @@ function Outerloader() {
      *
      * @returns {JSX.Element | null} - The content to be rendered for the selected tab. Returns a JSX
      *                                 Element corresponding to the selected tab ('introduction',
-     *                                 'configuration', or 'laboratory'). Returns null if no tab matches.
+     *                                 'configuration', or 'laboratory-lite'). Returns null if no tab matches.
      */
     const renderContent = () => {
         switch (selectedTab) {
+            // RELIA LITE Tabs
             case 'introduction':
                 return <Introduction currentSession={currentSession} setCurrentSession={setCurrentSession}/> ;
             case 'configuration':
                 return <Configuration currentSession={currentSession} setCurrentSession={setCurrentSession} setSelectedTab={setSelectedTab}
                                        setConfiguration={setConfiguration} selectedConfiguration={selectedConfiguration}
                                         loadConfiguration={loadConfiguration}/> ;
-                                      
-            case 'load-files':
-                return <Loader currentSession={currentSession} setCurrentSession={setCurrentSession} setSelectedTab={setSelectedTab}
-                               storedFiles={storedFiles} setStoredFiles={setStoredFiles} setSelectedFilesColumnRX={setSelectedFilesColumnRX}
-                                selectedFilesColumnRX={selectedFilesColumnRX} selectedFilesColumnTX={selectedFilesColumnTX} setSelectedFilesColumnTX={setSelectedFilesColumnTX}
-                                 fileStatus={fileStatus} setFileStatus={setFileStatus} checkStatus={checkStatus} manageTask={manageTask}/> ;
-            case 'laboratory':
-                return <Laboratory currentSession={currentSession} setCurrentSession={setCurrentSession} setReliaWidgets={setReliaWidgets} reliaWidgets={reliaWidgets}
-                                    fileStatus={fileStatus} setFileStatus={setFileStatus} checkStatus={checkStatus} manageTask={manageTask}/> ;
+            case 'laboratory-lite':
+                return <LaboratoryLite currentSession={currentSession} setCurrentSession={setCurrentSession} setReliaWidgets={setReliaWidgets} reliaWidgets={reliaWidgets}
+                                fileStatus={fileStatus} setFileStatus={setFileStatus} checkStatus={checkStatus} manageTask={manageTask}/> ;
+                           
+            // RELIA Tabs
+            // case 'load-files':
+            //     return <Loader currentSession={currentSession} setCurrentSession={setCurrentSession} setSelectedTab={setSelectedTab}
+            //                    storedFiles={storedFiles} setStoredFiles={setStoredFiles} setSelectedFilesColumnRX={setSelectedFilesColumnRX}
+            //                     selectedFilesColumnRX={selectedFilesColumnRX} selectedFilesColumnTX={selectedFilesColumnTX} setSelectedFilesColumnTX={setSelectedFilesColumnTX}
+            //                      fileStatus={fileStatus} setFileStatus={setFileStatus} checkStatus={checkStatus} manageTask={manageTask}/> ;
+            // case 'laboratory':
+            //     return <Laboratory currentSession={currentSession} setCurrentSession={setCurrentSession} setReliaWidgets={setReliaWidgets} reliaWidgets={reliaWidgets}
+            //                         fileStatus={fileStatus} setFileStatus={setFileStatus} checkStatus={checkStatus} manageTask={manageTask}/> ;
             default:
                 return null;
         }
@@ -196,6 +202,7 @@ function Outerloader() {
                 method: 'GET'
             })
             .then((response) => {
+                console.log("response:", response);
                 if (response.ok) {  // Check if response is ok
                     return response.json();
                 } else {
@@ -204,6 +211,7 @@ function Outerloader() {
             })
             // bug here possibly if data is not returned correctly
             .then((data) => {
+                console.log("Data:", data);
                 if (!data.success) {
                     if (data.redirect_to)
                         window.location.href = data.redirect_to;
@@ -211,7 +219,7 @@ function Outerloader() {
                         window.location.href = "https://relia.rhlab.ece.uw.edu"
                 }
 
-                if (data.locale && data.locale != i18n.language) {
+                if (data.locale && data.locale !== i18n.language) {
                     i18n.changeLanguage(data.locale);
                 }
 
@@ -222,35 +230,35 @@ function Outerloader() {
                 console.error('Fetch error:', error.message);
             });
 
-            fetch(`${process.env.REACT_APP_API_BASE_URL}/api/user/files/`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            })
-            .then(response => {
-                if (response.ok) {
-                    return response.json();
-                } else {
-                    throw new Error('Network response was not ok.');
-                }
-            })
-            .then(data => {
-                if (data.success) {
-                    // Access the list of files from the response
-                    const files = data.files;
-                    setStoredFiles(files);
-                    const selectedRXFiles = data.metadata['receiver'];
-                    setSelectedFilesColumnRX(selectedRXFiles);
-                    const selectedTXFiles = data.metadata['transmitter'];
-                    setSelectedFilesColumnTX(selectedTXFiles);
-                } else {
-                    console.error('Error fetching files:', data.message);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error.message);
-            });
+            // fetch(`${process.env.REACT_APP_API_BASE_URL}/api/user/files/`, {
+            //     method: 'GET',
+            //     headers: {
+            //         'Content-Type': 'application/json'
+            //     }
+            // })
+            // .then(response => {
+            //     if (response.ok) {
+            //         return response.json();
+            //     } else {
+            //         throw new Error('Network response was not ok.');
+            //     }
+            // })
+            // .then(data => {
+            //     if (data.success) {
+            //         // Access the list of files from the response
+            //         const files = data.files;
+            //         setStoredFiles(files);
+            //         const selectedRXFiles = data.metadata['receiver'];
+            //         setSelectedFilesColumnRX(selectedRXFiles);
+            //         const selectedTXFiles = data.metadata['transmitter'];
+            //         setSelectedFilesColumnTX(selectedTXFiles);
+            //     } else {
+            //         console.error('Error fetching files:', data.message);
+            //     }
+            // })
+            // .catch(error => {
+            //     console.error('Error:', error.message);
+            // });
         }
 
 
@@ -362,10 +370,10 @@ function Outerloader() {
      * This function is responsible for starting a new processing task with the server.
      * It sends a POST request to the '/user/tasks/' endpoint to create a new task.
      * Upon successful creation, the task's details are updated in the current session,
-     * and the user interface is redirected to the "Laboratory" tab where the task progress
+     * and the user interface is redirected to the "Laboratory" (lite) tab where the task progress
      * can be monitored. This function is an essential part of the workflow in the SDR (Software Defined Radio)
-     * operation setup, where it marks the transition from file selection and setup to the actual
-     * processing and observation phase in the "Laboratory" tab.
+     * operation setup, where it marks the transition from configuration selection and setup to the actual
+     * data visualization phase in the "Laboratory" (lite) tab.
      *
      * On a successful server response, the current session state is updated with the new task's
      * identifier, status, and message. This function also initiates a status check loop by calling
@@ -380,9 +388,10 @@ function Outerloader() {
     const loadConfiguration = () => {
         // Create file name based on options
         var configurationFileName = "";
-        for (const key of Object.keys(selectedConfiguration)) {
-            var selectedOption = selectedConfiguration[key].split(" ")[0];
-            configurationFileName += key + "_" + selectedOption + "_";
+        console.log("LOADING CONFIGURATION");
+        for (const parameter of Object.keys(selectedConfiguration)) {
+            var selectedOption = selectedConfiguration[parameter].split(" ")[0];
+            configurationFileName += parameter + "_" + selectedOption + "_";
         }
         configurationFileName = configurationFileName.substring(0, configurationFileName.length-1) + ".json";
         console.log(configurationFileName);
@@ -401,7 +410,7 @@ function Outerloader() {
         Object.assign(currentSession, newSession);
         console.log(currentSession);
         setTimeout(checkStatus, 1000);
-        setSelectedTab("laboratory");
+        setSelectedTab("laboratory-lite");
     };
 
     /**
@@ -427,10 +436,13 @@ function Outerloader() {
          fetch(`${process.env.REACT_APP_API_BASE_URL}/scheduler/user/tasks/${currentSession.taskIdentifier}`, {
             method: 'GET'
         }).then((response) => {
+            console.log('Response:', response);
             if (response.status === 200) {
                 return response.json();
             }
         }).then((data) => {
+            console.log("DATA:");
+            console.log(data);
             if (data.success) {
                 const newSession = {
                     "taskIdentifier": currentSession.taskIdentifier,
@@ -548,7 +560,7 @@ function Outerloader() {
                             </Nav.Link>
                         </Nav.Item>
                         <Nav.Item>
-                            {/* Laboratory tab is disabled and cannot be clicked. It can only be activated programmatically */}
+                            {/* Laboratory (lite) tab is disabled and cannot be clicked. It can only be activated programmatically */}
                             <Nav.Link eventKey="laboratory" disabled className={"pill"}>
                                 3. {t("loader.upload.laboratory")}
                             </Nav.Link>

@@ -1,0 +1,139 @@
+I need to move the fan to the end of the table:
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+        <title>Babylon.js sample code</title>
+
+        <!-- Babylon.js -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.6.2/dat.gui.min.js"></script>
+        <script src="https://assets.babylonjs.com/generated/Assets.js"></script>
+        <script src="https://cdn.babylonjs.com/recast.js"></script>
+        <script src="https://cdn.babylonjs.com/ammo.js"></script>
+        <script src="https://cdn.babylonjs.com/havok/HavokPhysics_umd.js"></script>
+        <script src="https://cdn.babylonjs.com/cannon.js"></script>
+        <script src="https://cdn.babylonjs.com/Oimo.js"></script>
+        <script src="https://cdn.babylonjs.com/earcut.min.js"></script>
+        <script src="https://cdn.babylonjs.com/babylon.js"></script>
+        <script src="https://cdn.babylonjs.com/materialsLibrary/babylonjs.materials.min.js"></script>
+        <script src="https://cdn.babylonjs.com/proceduralTexturesLibrary/babylonjs.proceduralTextures.min.js"></script>
+        <script src="https://cdn.babylonjs.com/postProcessesLibrary/babylonjs.postProcess.min.js"></script>
+        <script src="https://cdn.babylonjs.com/loaders/babylonjs.loaders.js"></script>
+        <script src="https://cdn.babylonjs.com/serializers/babylonjs.serializers.min.js"></script>
+        <script src="https://cdn.babylonjs.com/gui/babylon.gui.min.js"></script>
+        <script src="https://cdn.babylonjs.com/inspector/babylon.inspector.bundle.js"></script>
+
+        <style>
+            html, body {
+                overflow: hidden;
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+
+            #renderCanvas {
+                width: 100%;
+                height: 100%;
+                touch-action: none;
+            }
+            
+            #canvasZone {
+                width: 100%;
+                height: 100%;
+            }
+        </style>
+    </head>
+<body>
+    <div id="canvasZone"><canvas id="renderCanvas"></canvas></div>
+    <script>
+        var canvas = document.getElementById("renderCanvas");
+
+        var startRenderLoop = function (engine, canvas) {
+            engine.runRenderLoop(function () {
+                if (sceneToRender && sceneToRender.activeCamera) {
+                    sceneToRender.render();
+                }
+            });
+        }
+
+        var engine = null;
+        var scene = null;
+        var sceneToRender = null;
+        var createDefaultEngine = function() { return new BABYLON.Engine(canvas, true, { preserveDrawingBuffer: true, stencil: true,  disableWebGL2Support: false}); };
+        var delayCreateScene = function () {
+            
+            var scene = new BABYLON.Scene(engine);
+            // var camera = new BABYLON.ArcRotateCamera("camera", 0, 1, 10, BABYLON.Vector3.Zero(), scene);
+            // camera.attachControl(canvas, true);
+            // camera.setTarget(BABYLON.Vector3.Zero());
+            // camera.attachControl(canvas, true);
+            
+            var light = new BABYLON.HemisphericLight("hemiLight", new BABYLON.Vector3(0,1,0), scene);
+
+            BABYLON.SceneLoader.ImportMesh("", "/models/", "table.obj", scene, function (tableMeshes) {
+              // Assume the table is the first mesh loaded
+              const tableMesh = tableMeshes[0];
+          
+              // Get the bounding box of the table
+              const boundingInfo = tableMesh.getBoundingInfo();
+              const tableHeight = boundingInfo.boundingBox.maximumWorld.y - boundingInfo.boundingBox.minimumWorld.y;
+          
+              // Position the table on the ground
+              tableMesh.position = new BABYLON.Vector3(0, 0, 0);
+          
+              // Now load the fan and position it on top of the table
+              BABYLON.SceneLoader.ImportMesh(
+                  null,
+                  Assets.meshes.vintageFan_animated.rootUrl,
+                  Assets.meshes.vintageFan_animated.filename,
+                  scene,
+                  function (fanMeshes) {
+                      // Position the fan above the table
+                      const fanXOffset = 30;
+                      const fanYOffset = 41;
+                      fanMeshes.forEach(function(fanMesh) {
+                          fanMesh.position = new BABYLON.Vector3(fanXOffset, tableHeight - fanYOffset, 0);
+                      });
+                  }
+              );
+              var camera = new BABYLON.ArcRotateCamera("camera", Math.PI / 4, Math.PI / 3, 15, BABYLON.Vector3.Zero(), scene);
+              camera.attachControl(canvas, true);
+
+              // Adjust the position and target of the camera
+              const cameraYoffset = 70;
+              camera.setPosition(new BABYLON.Vector3(0, tableHeight + cameraYoffset, -10));  // Move the camera back and up
+              camera.target = new BABYLON.Vector3(0, tableHeight, 0); // Adjust the target to focus on the top of the table
+
+            });
+        
+            return scene;
+        };
+                window.initFunction = async function() {
+                    
+                    
+                    
+                    var asyncEngineCreation = async function() {
+                        try {
+                        return createDefaultEngine();
+                        } catch(e) {
+                        console.log("the available createEngine function failed. Creating the default engine instead");
+                        return createDefaultEngine();
+                        }
+                    }
+
+                    window.engine = await asyncEngineCreation();
+        if (!engine) throw 'engine should not be null.';
+        startRenderLoop(engine, canvas);
+        window.scene = delayCreateScene();};
+        initFunction().then(() => {sceneToRender = scene                    
+        });
+
+        // Resize
+        window.addEventListener("resize", function () {
+            engine.resize();
+        });
+    </script>
+</body>
+</html>
