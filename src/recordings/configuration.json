@@ -3,9 +3,9 @@
             {
                 "name": "freqency-wavelength",
                 "values": [
-                    "800 MHz / 37.5 cm",
-                    "1200 MHz / 25 cm",
-                    "1800 MHz / 16.66 cm"
+                    "800mhz",
+                    "1200mhz",
+                    "1800mhz"
                 ]
             },
 
@@ -21,9 +21,9 @@
             {
                 "name": "bandwidth",
                 "values": [ 
-                        "100 KHz",
-                        "200 KHz",
-                        "500 KHz"
+                        "100khz",
+                        "200khz",
+                        "500khz"
                     ]
             },
             
