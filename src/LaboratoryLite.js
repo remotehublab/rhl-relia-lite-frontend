@@ -72,8 +72,8 @@ function LaboratoryLite({currentSession, setCurrentSession, reliaWidgets, setRel
                     "message": data.message,
                     "assignedInstance": null,
                     "assignedInstanceName": t("runner.no-instance-yet"),
-                    "transmitterFilename": null,
-                    "receiverFilename": null,
+                    "configurationFoldername": null,
+                    "dataUrl": null,
                     "cameraUrl": null,
                     "renderingWidgets": currentSession.renderingWidgets,
                 }
@@ -99,6 +99,7 @@ function LaboratoryLite({currentSession, setCurrentSession, reliaWidgets, setRel
 
     const shouldCameraReloadInCurrentStatus = () => {
         let currentStatus = currentSessionStatusRef.current;
+        console.log("current status in shouldCameraReloadInCurrentStatus: ", currentStatus);
         return currentStatus == 'receiver-assigned' || currentStatus == 'fully-assigned' || currentStatus == 'receiver-still-processing' || currentStatus == 'transmitter-still-processing';
     }
 
@@ -106,16 +107,17 @@ function LaboratoryLite({currentSession, setCurrentSession, reliaWidgets, setRel
         // Only when the image is loaded (or there is an error), try to reload the image again after 50ms
         // but only if at that moment we are still in the right conditions
         setTimeout(function () {
-            if (cameraShouldRunRef.current && shouldCameraReloadInCurrentStatus()) {
+            if (shouldCameraReloadInCurrentStatus()) {
                 setCameraUrl(getCameraURL());
                 // for some reason setCameraUrl goes super slow to refresh, so we manipulate DOM directly
                 document.getElementById("camera-image").src = getCameraURL();
             }
+            console.log("cameraUrl: ", cameraURL);
         }, 50);
     };
 
     const getCameraURL = () => {
-        return cameraUrlRef.current + "?t=" + new Date().toString();
+        return process.env.REACT_APP_RECORDINGS_BASE_URL + cameraUrlRef.current;
     };
 
     function convertStatusMessage(status) {
@@ -151,6 +153,7 @@ function LaboratoryLite({currentSession, setCurrentSession, reliaWidgets, setRel
 
     const currentSessionRef = useRef(currentSession);
     currentSessionRef.current = currentSession;
+    console.log("current session status: ", currentSession.status);
     currentSessionStatusRef.current = currentSession.status;
 
     useEffect(() => {
@@ -175,7 +178,7 @@ function LaboratoryLite({currentSession, setCurrentSession, reliaWidgets, setRel
                 reliaWidgets.stop();
         }
         currentSessionStatusRef.current = currentSession.status;
-        cameraUrlRef.current = currentSession.cameraUrl;
+        cameraUrlRef.current = currentSession.configurationFoldername + '/' + currentSession.cameraUrl;
 
         setCameraUrl(getCameraURL());
     }, [ currentSession ]);
@@ -207,7 +210,7 @@ function LaboratoryLite({currentSession, setCurrentSession, reliaWidgets, setRel
             {showCamera && (
                 <Row>
                     <Col xs={{ span: 12 }} md={{ span: 10, offset: 1 }} lg={{ span: 8, offset: 2 }} xl={{ span: 6, offset: 3 }}>
-                        <img id={"camera-image"} src={cameraURL} onLoad={onImageLoaded} onError={onImageLoaded} alt="Camera" width="100%"/>
+                    <video id={"camera-image"} src={cameraURL} onLoad={onImageLoaded} onError={onImageLoaded} alt="Camera" controls width="100%"/>
                     </Col>
                     <center>
                         <br />

@@ -420,7 +420,6 @@ function Outerloader() {
                 setCurrentSession(newSession);
                 Object.assign(currentSession, newSession);
                 console.log(currentSession);
-                //setTimeout(checkStatus, 1000);
                 setSelectedTab("laboratory-lite");
             } else {
                 if (setFileStatus) {
