@@ -7,7 +7,6 @@ import React, {
     useState
 } from 'react';
 
-
 // for  translations
 import i18n, {
     t
@@ -27,7 +26,6 @@ import {
 } from 'react-bootstrap';
 import './Loader.css';
 
-//import {emptyOptions} from './Configuration';
 import Configuration from "./Configuration";
 import LaboratoryLite from "./LaboratoryLite";
 import Introduction from "./Introduction";
@@ -35,7 +33,6 @@ import Introduction from "./Introduction";
 // old tabs
 import Loader from "./Loader";
 import Laboratory from "./Laboratory";
-
 
 //images
 import LabsLand_logo from './components/images/LabsLand-logo.png';
@@ -77,7 +74,7 @@ function Outerloader() {
         "message": "",
         "assignedInstance": null,
         "assignedInstanceName": "",
-        "dataFileName": null,
+        "dataUrl": null,
         "cameraUrl": null,
         "renderingWidgets": false,
     });
@@ -309,8 +306,7 @@ function Outerloader() {
      * Initiates a new task for processing and switches the user to the "Laboratory" tab.
      *
      * This function is responsible for starting a new processing task with the server.
-     * It sends a POST request to the '/user/tasks/' endpoint to create a new task.
-     * Upon successful creation, the task's details are updated in the current session,
+     * the task's details are updated in the current session,
      * and the user interface is redirected to the "Laboratory" tab where the task progress
      * can be monitored. This function is an essential part of the workflow in the SDR (Software Defined Radio)
      * operation setup, where it marks the transition from file selection and setup to the actual
@@ -346,8 +342,8 @@ function Outerloader() {
                     "message": data.message,
                     "assignedInstance": null,
                     "assignedInstanceName": t("runner.no-instance-yet"),
-                    "transmitterFilename": null,
-                    "receiverFilename": null,
+                    "configurationFilename": null,
+                    "dataUrl": null,
                     "cameraUrl": null,
                     "renderingWidgets": currentSession.renderingWidgets,
                 }
@@ -366,15 +362,15 @@ function Outerloader() {
     };
 
     /**
-     * Initiates a new configuration for processing and switches the user to the "Laboratory" tab.
+     * Initiates a new task for processing and switches the user to the "Laboratory" tab.
      *
-     * This function is responsible for starting a new processing task with the server.
-     * It sends a POST request to the '/user/tasks/' endpoint to create a new task.
-     * Upon successful creation, the task's details are updated in the current session,
-     * and the user interface is redirected to the "Laboratory" (lite) tab where the task progress
-     * can be monitored. This function is an essential part of the workflow in the SDR (Software Defined Radio)
-     * operation setup, where it marks the transition from configuration selection and setup to the actual
-     * data visualization phase in the "Laboratory" (lite) tab.
+     * This function is responsible for updating the current session's configuratin folder, data URL, and video URL
+     * so these can be used to get the necessary information in the Laboratory tab / Laboratory Lite component.
+     * The task's details are updated in the current session,
+     * and the user interface is redirected to the "Laboratory" tab (Laboratory Lite).
+     * This function is an essential part of the workflow in the SDR (Software Defined Radio)
+     * operation setup, where it marks the transition from configuration selection to the actual
+     * processing and observation phase in the "Laboratory" tab.
      *
      * On a successful server response, the current session state is updated with the new task's
      * identifier, status, and message. This function also initiates a status check loop by calling
@@ -387,32 +383,80 @@ function Outerloader() {
      *
     */
     const loadConfiguration = () => {
-        // Create file name based on options
-        var configurationFileName = "";
+        // Create file name based on selected configuration
         console.log("LOADING CONFIGURATION");
+        var configurationFoldername = "";
         for (const parameter of Object.keys(selectedConfiguration)) {
-            var selectedOption = selectedConfiguration[parameter].split(" ")[0];
-            configurationFileName += parameter + "_" + selectedOption + "_";
+            configurationFoldername += parameter + "_" + selectedConfiguration[parameter] + "_";
         }
-        configurationFileName = configurationFileName.substring(0, configurationFileName.length-1) + ".json";
-        console.log(configurationFileName);
-        const newSession = {
-            "taskIdentifier": null, //data.taskIdentifier,
-            "status": null, //data.status,
-            "message": null, //data.message,
-            "assignedInstance": null,
-            "assignedInstanceName": t("runner.no-instance-yet"),
-            "transmitterFilename": null,
-            "receiverFilename": null,
-            "cameraUrl": null,
-            "renderingWidgets": currentSession.renderingWidgets,
-        }
-        setCurrentSession(newSession);
-        Object.assign(currentSession, newSession);
-        console.log(currentSession);
-        setTimeout(checkStatus, 1000);
-        setSelectedTab("laboratory-lite");
+        configurationFoldername = configurationFoldername.substring(0, configurationFoldername.length-1);
+        console.log("configuration file name: ", configurationFoldername);
+        // Fetch the file
+        fetch(`${process.env.REACT_APP_RECORDINGS_BASE_URL + configurationFoldername}/index.json`)
+        .then((response) => {
+            console.log("configuration file response: ", response);
+            if (response.status === 200) {
+                return response.json();
+            } else {
+            // TODO
+            console.log('Failed to fetch: Status ' + response.status);
+            setFileStatus(<a>Error receiving files, please try again</a>);
+            }
+        }).then((data) => {
+            console.log("configuration file json: ", data);
+            if (data && data.recordings) {
+                const URLs = getURLs(data.recordings);
+                const newSession = {
+                    "taskIdentifier": null, //data.taskIdentifier,
+                    "status": data.status, //data.status,
+                    "message": null, //data.message,
+                    "assignedInstance": null,
+                    "assignedInstanceName": t("runner.no-instance-yet"),
+                    "configurationFoldername": configurationFoldername,
+                    "dataUrl": URLs['dataUrl'],
+                    "cameraUrl": URLs['videoUrl'],
+                    "renderingWidgets": currentSession.renderingWidgets,
+                }
+                setCurrentSession(newSession);
+                Object.assign(currentSession, newSession);
+                console.log(currentSession);
+                //setTimeout(checkStatus, 1000);
+                setSelectedTab("laboratory-lite");
+            } else {
+                if (setFileStatus) {
+                    setFileStatus(<a>Error sending files, please try again</a>);
+                }
+                console.error('Failed to create task');
+            }
+        }).catch((error) => {
+            console.error('There was an error with the fetch operation:', error);
+            if (setFileStatus) {
+                setFileStatus(<a>Unexpected error occurred, please try again</a>);
+            }
+        });;
+        
     };
+
+    /**
+     * Given a recordings JSON array from the index file of a configuration folder,
+     * finds a random recording and returns a map of the data URL (map['dataUrl']) 
+     * and video URL (map['videoUrl']).
+     * **/
+    function getURLs(recordings) {
+        const URLs = {};
+        const randomIndex = Math.floor(Math.random() * recordings.length);
+        const randomRecording = recordings[randomIndex];
+        URLs['dataUrl'] = randomRecording.dataUrl;
+        URLs['videoUrl'] = null;
+        // TODO: add functionality to choose the correct type of video URL
+        const requiredVideoURLType = "video/mp4";
+        for (const videoFormat of randomRecording.videoUrl) {
+            if (videoFormat.type === requiredVideoURLType) {
+                URLs ['videoUrl'] = videoFormat.src;
+            }
+        }
+        return URLs;
+    }
 
     /**
      * Periodically checks the status of the current user task on the server.
@@ -451,8 +495,8 @@ function Outerloader() {
                     "message": data.message,
                     "assignedInstance": data.assignedInstance,
                     "assignedInstanceName": data.assignedInstance,
-                    "transmitterFilename": data.transmitterFilename,
-                    "receiverFilename": data.receiverFilename,
+                    "configurationFilename": null,
+                    "dataUrl": null,
                     "cameraUrl": data.cameraUrl,
                     "renderingWidgets": currentSession.renderingWidgets,
                 }

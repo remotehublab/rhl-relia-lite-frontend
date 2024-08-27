@@ -27,7 +27,7 @@ import {
     Button,
     Form
 } from 'react-bootstrap';
-//import configuration from './recordings/configuration.json'
+
 import './Configuration.css';
 
 /**
@@ -116,13 +116,24 @@ function Configuration({
     );
 }
 
+/**
+ * Function to get a map of configuration parameter names that each point to null
+ * @param {Object} configuration - The JSON object representing the configuration options
+ * 
+ * @returns {Object} Map of (parameterName: null) for each parameter within given configuration
+ * **/
 function getEmptyParameters(configuration) {
     const selections = {}
-    if (configuration != null) {
-        for (const parameter of configuration.parameters) {
-            selections[parameter.name] = null;
+    try {
+        if (configuration != null) {
+            for (const parameter of configuration.parameters) {
+                selections[parameter.name] = null;
+            }
         }
+    } catch {
+        console.log("Invalid configuration format");
     }
+    
     return selections;
 }
 
