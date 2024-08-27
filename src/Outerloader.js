@@ -27,7 +27,7 @@ import {
 } from 'react-bootstrap';
 import './Loader.css';
 
-import { numOptions, emptyOptions } from './Configuration';
+//import {emptyOptions} from './Configuration';
 import Configuration from "./Configuration";
 import LaboratoryLite from "./LaboratoryLite";
 import Introduction from "./Introduction";
@@ -84,7 +84,8 @@ function Outerloader() {
 
     // Initializes an object [1: null, 2: null, ... , numOptions: null] to store configuration
     // null signifies no option is selected
-    const [selectedConfiguration, setConfiguration] = useState(emptyOptions);
+    //const [selectedConfiguration, setConfiguration] = useState(emptyOptions);
+    const [selectedConfiguration, setSelectedConfiguration] = useState({});
 
     const [fileStatus, setFileStatus] = useState(<a href="https://rhlab.ece.uw.edu/projects/relia/" target="_blank" rel="noopener noreferrer">
             Upload GNU radio files to proceed TEST
@@ -165,7 +166,7 @@ function Outerloader() {
                 return <Introduction currentSession={currentSession} setCurrentSession={setCurrentSession}/> ;
             case 'configuration':
                 return <Configuration currentSession={currentSession} setCurrentSession={setCurrentSession} setSelectedTab={setSelectedTab}
-                                       setConfiguration={setConfiguration} selectedConfiguration={selectedConfiguration}
+                                       setSelectedConfiguration={setSelectedConfiguration} selectedConfiguration={selectedConfiguration}
                                         loadConfiguration={loadConfiguration}/> ;
             case 'laboratory-lite':
                 return <LaboratoryLite currentSession={currentSession} setCurrentSession={setCurrentSession} setReliaWidgets={setReliaWidgets} reliaWidgets={reliaWidgets}

@@ -2,7 +2,8 @@
   Inner component for the relia webapp, part of the Configuration tab
    defines a set of configurations for the experiment.
    Todo:
-     = Add missing translations
+     Add missing translations
+     Get configuration json file from server
  */
 
 // react stuff
@@ -27,19 +28,16 @@ import {
     Button,
     Form
 } from 'react-bootstrap';
-import configuration from './recordings/configuration.json'
+//import configuration from './recordings/configuration.json'
 import './Configuration.css';
-
-export const numOptions = getNumOptions();  // The number of confiugration options
-export const emptyOptions = getEmptyOptions(); // {Option1: null, ... , OptionnumOptions: null}
 
 /**
  * Configuration Component
  * @param {Object} currentSession - Holds the data for the current user session
  * @param {Function} setCurrentSession - Function to set the current user session.
  * @param {Function} setSelectedTab - Function to set the selected tab (intro/files/lab).
- * @param {Function} setConfiguration - Function to set the selected configuration
  * @param {Object} selectedConfiguration - Object holding the current state of the configuration
+ * @param {Function} setSelectedConfiguration - Function to set the selected configuration
  * @param {Function} loadConfiguration - Function to load the selected configuration in the laboratory tab
  * 
  * @returns {JSX.Element} The rendered Loader component.
@@ -48,16 +46,43 @@ function Configuration({
     currentSession,
     setCurrentSession,
     setSelectedTab,
-    setConfiguration,
     selectedConfiguration,
+    setSelectedConfiguration,
     loadConfiguration
 }) {
 
-    const selectOption = (column, option) => {
-        setConfiguration((prev) => ({ ...prev, [column]: option }));
+    const [configuration, setConfiguration] = useState({});
+
+    useEffect(() => {
+        async function fetchConfiguration() {
+            try {
+                const response = await fetch(`${process.env.REACT_APP_RECORDINGS_BASE_URL}configuration.json`);
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`Network response was not ok. Status: ${response.status}. Response: ${errorText}`);
+                }
+                const data = await response.json();
+                setSelectedConfiguration(getEmptyParameters(data));
+                setConfiguration(data);
+            } catch (error) {
+                console.error('There was a problem with the fetch operation:', error);
+            }
+        }
+        
+        fetchConfiguration();
+    }, []);
+
+    useEffect(() => {
+        // This effect will run whenever `configuration` changes
+        console.log("Updated configuration: ", configuration);
+    }, [configuration]);
+
+    const select = (column, option) => {
+        setSelectedConfiguration((prev) => ({ ...prev, [column]: option }));
     };
 
     const generateOptionsButtons = () => {
+        if (!configuration || !configuration.parameters) return null;  // Render nothing if no configuration data
         return configuration.parameters.map((parameter, parameterIndex) => (
             <Col key={parameterIndex}>
                 <Col className="radio-buttons">
@@ -69,7 +94,7 @@ function Configuration({
                                 name={parameter.name}
                                 value={option}
                                 checked={selectedConfiguration[parameter.name] === option}
-                                onChange={() => selectOption(parameter.name, option)}
+                                onChange={() => select(parameter.name, option)}
                             />
                             {t("loader.configuration." + option).replace("loader.configuration.", "")}
                         </label>
@@ -97,14 +122,12 @@ function Configuration({
     );
 }
 
-function getNumOptions() {
-    return configuration.parameters.length;
-}
-
-function getEmptyOptions() {
+function getEmptyParameters(configuration) {
     const selections = {}
-    for (const parameter of configuration.parameters) {
-        selections[parameter.name] = null;
+    if (configuration != null) {
+        for (const parameter of configuration.parameters) {
+            selections[parameter.name] = null;
+        }
     }
     return selections;
 }
