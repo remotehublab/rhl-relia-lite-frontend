@@ -3,7 +3,6 @@
    defines a set of configurations for the experiment.
    Todo:
      Add missing translations
-     Get configuration json file from server
  */
 
 // react stuff
@@ -36,9 +35,9 @@ import './Configuration.css';
  * @param {Object} currentSession - Holds the data for the current user session
  * @param {Function} setCurrentSession - Function to set the current user session.
  * @param {Function} setSelectedTab - Function to set the selected tab (intro/files/lab).
- * @param {Object} selectedConfiguration - Object holding the current state of the configuration
+ * @param {Object} selectedConfiguration - Object holding the current state of the selected configuration
  * @param {Function} setSelectedConfiguration - Function to set the selected configuration
- * @param {Function} loadConfiguration - Function to load the selected configuration in the laboratory tab
+ * @param {Function} loadConfiguration - Function to load the selected configuration in the laboratory lite tab
  * 
  * @returns {JSX.Element} The rendered Loader component.
  */
@@ -72,14 +71,11 @@ function Configuration({
         fetchConfiguration();
     }, []);
 
-    useEffect(() => {
-        // This effect will run whenever `configuration` changes
-        console.log("Updated configuration: ", configuration);
-    }, [configuration]);
-
     const select = (column, option) => {
         setSelectedConfiguration((prev) => ({ ...prev, [column]: option }));
     };
+
+    const allSelected = Object.values(selectedConfiguration).every(option => option !== null);
 
     const generateOptionsButtons = () => {
         if (!configuration || !configuration.parameters) return null;  // Render nothing if no configuration data
@@ -103,8 +99,6 @@ function Configuration({
             </Col>
         ));
     };
-
-    const allSelected = Object.values(selectedConfiguration).every(option => option !== null);
 
     return (
         <Container>

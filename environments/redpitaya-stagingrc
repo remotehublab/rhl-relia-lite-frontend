@@ -1,5 +1,5 @@
 REACT_APP_DEVICE_NAME="Red Pitaya"
 REACT_APP_API_BASE_URL=/redpitaya
-PUBLIC_URL=/redpitaya
 REACT_APP_RECORDINGS_BASE_URL="https://relia.rhlab.ece.uw.edu/recordings/"
+PUBLIC_URL=/redpitaya
 ENV=staging
