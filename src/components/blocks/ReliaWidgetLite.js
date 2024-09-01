@@ -7,6 +7,7 @@ class ReliaWidget {
     this.blockIdentifier = blockIdentifier;
     this.taskIdentifier = taskIdentifier;
     this.url =
+      process.env.REACT_APP_RECORDINGS_BASE_URL +
       window.API_BASE_URL +
       "data/tasks/" +
       taskIdentifier +
@@ -30,19 +31,14 @@ class ReliaWidget {
 
     $.get(this.url)
       .done(function (response) {
-        if (!self.running) {
-          // Do not even print the new data
-          return;
-        }
+        if (!self.running) return;
 
         if (!response.success) {
           console.log("Error on request" + self.url + ": " + response.message, response);
           return;
         }
 
-        if (response.data == null) {
-          return;
-        }
+        if (response.data == null) return;
 
         // call redraw just after
         setTimeout(function () {
@@ -54,9 +50,8 @@ class ReliaWidget {
       })
       .fail(function () {
         // failing is not stopping (unless they tell us to stop)
-        if (!self.running) {
-          return;
-        }
+        if (!self.running) return;
+
         setTimeout(function () {
           self.performRequest();
         });
