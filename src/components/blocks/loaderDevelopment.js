@@ -82,17 +82,13 @@ export class ReliaWidgets {
    * if there are devices, etc.
    */
   process() {
-    console.log("process called! 1");
     var self = this;
 
     if (!self.running) {
       return;
     }
 
-    console.log("process called! 2");
-
     $.get(self.devicesUrl).done(function (data) {
-      console.log("process called! 3");
       if (!self.running) return;
 
       if (!data.success) {

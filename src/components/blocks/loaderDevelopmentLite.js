@@ -14,6 +14,9 @@ import ReliaNumberSink from "./NumberSink.js";
 import ReliaEyePlot from "./EyePlot.js";
 import ReliaFrequencySink from "./FrequencySink.js";
 
+import FrequencySinkLite from "./FrequencySinkLite.js";
+import ReliaVectorSinkLite from "./VectorSinkLite.js";
+
 // how fast it should ask for devices
 var CHECK_DEVICES_TIME_MS = 500;
 
@@ -84,20 +87,16 @@ export class ReliaWidgets {
    * if there are devices, etc.
    */
   process() {
-    console.log("process called! 1");
+    console.log("processing!");
     var self = this;
 
     if (!self.running) return;
 
-    console.log("process called! 2");
-
+    // Get the JSON file from the data URL
     $.get(self.url).done(function (data) {
-      console.log("process called! 3");
-      console.log("Data: ", data);
+      console.log("From dataUrl got data: ", data);
       if (!self.running) return;
       if (!data) return;
-
-      console.log("process called! 4");
 
       setTimeout(function () {
         self.process();
@@ -109,11 +108,10 @@ export class ReliaWidgets {
       //console.log("assignedInstanceName: ", assignedInstanceName);
 
       //if (assignedInstance !== null) {
-      var devices = ["receiver", "transmitter"];
+      //var devices = ["receiver", "transmitter"];
 
-      $.each(devices, function (pos, deviceType) {
-        console.log("device type: ", deviceType);
-        console.log("data[deviceType]: ", data[deviceType]);
+      $.each(Object.keys(data), function (pos, deviceType) {
+        console.log("Position:", pos, "Key:", deviceType, "Object:", data[deviceType]);
         var $deviceContents;
         // deviceName is uw-s1i1 + ":r", for example
         var deviceName = deviceType[0];
@@ -147,72 +145,96 @@ export class ReliaWidgets {
         //$.get(blocksUrl).done(function (data) {
         if (!self.running) return;
 
-        if (!data) {
-          console.log("Error loading blocks:", data);
-          return;
-        }
+        // if (!data) {
+        //   console.log("Error loading blocks:", data);
+        //   return;
+        // }
+
         console.log("Listing blocks in ", deviceName);
         console.log("self.blocksById: ", self.blocksById);
-        //$.each(data[deviceType], function (post, blockName) {
-        // console.log("Block", blockName, " found at ", deviceName);
-        if (self.blocksById[deviceName] && !self.blocksById[deviceName][blockName]) {
-          console.log(
-            "Block",
-            blockName,
-            " found at ",
-            deviceName,
-            "was NOT included, so we include it now"
-          );
-          var $newDiv = $(
-            '<div class="" style="padding: 10px">' +
-              '<div style="width: 100%; border: 1px solid black; border-radius: 20px; background: #eee; padding: 10px">' +
-              "<h5 class='deviceTitle'></h5>" +
-              '<div class="block-contents" style="width: 100%"></div>' +
-              "</div>" +
-              "</div>"
-          );
-          $deviceContents.append($newDiv);
-          var $divContents = $newDiv.find(".block-contents");
-          // console.log("Loading...", deviceName, blockName);
-          var block; // a block inherits from ReliaWidget
-          if (blockName.startsWith("RELIA Constellation Sink")) {
-            block = new ReliaConstellationSink($divContents, deviceName, blockName, self.taskId);
-          } else if (blockName.startsWith("RELIA Time Sink")) {
-            block = new ReliaTimeSink($divContents, deviceName, blockName, self.taskId);
-          } else if (blockName.startsWith("RELIA Vector Sink")) {
-            block = new ReliaVectorSink($divContents, deviceName, blockName, self.taskId);
-          } else if (blockName.startsWith("RELIA Variable Range")) {
-            block = new ReliaVariableRange($divContents, deviceName, blockName, self.taskId);
-          } else if (blockName.startsWith("RELIA Histogram Sink")) {
-            block = new ReliaHistogramSink($divContents, deviceName, blockName, self.taskId);
-          } else if (blockName.startsWith("RELIA Variable CheckBox")) {
-            block = new ReliaCheckBox($divContents, deviceName, blockName, self.taskId);
-          } else if (blockName.startsWith("RELIA Variable PushButton")) {
-            block = new ReliaPushButton($divContents, deviceName, blockName, self.taskId);
-          } else if (blockName.startsWith("RELIA Variable Chooser")) {
-            block = new ReliaChooser($divContents, deviceName, blockName, self.taskId);
-          } else if (blockName.startsWith("RELIA Number Sink")) {
-            block = new ReliaNumberSink($divContents, deviceName, blockName, self.taskId);
-          } else if (blockName.startsWith("RELIA Eye Plot")) {
-            block = new ReliaEyePlot($divContents, deviceName, blockName, self.taskId);
-          } else if (blockName.startsWith("RELIA Frequency Sink")) {
-            block = new ReliaFrequencySink($divContents, deviceName, blockName, self.taskId);
+        console.log("self.blocks: ", self.blocks);
+        $.each(data[deviceType], function (post, blockJson) {
+          console.log("Block", blockJson, " at pos: ", post, " for device: ", deviceType);
+          const blockName = blockJson.name;
+          console.log("blockName: ", blockName);
+          if (self.blocksById[deviceName] && !self.blocksById[deviceName][blockName]) {
+            console.log(
+              "Block",
+              blockName,
+              " found at ",
+              deviceName,
+              "was NOT included, so we include it now"
+            );
+            var $newDiv = $(
+              '<div class="" style="padding: 10px">' +
+                '<div style="width: 100%; border: 1px solid black; border-radius: 20px; background: #eee; padding: 10px">' +
+                "<h5 class='deviceTitle'></h5>" +
+                '<div class="block-contents" style="width: 100%"></div>' +
+                "</div>" +
+                "</div>"
+            );
+            $deviceContents.append($newDiv);
+            var $divContents = $newDiv.find(".block-contents");
+            // console.log("Loading...", deviceName, blockName);
+            var block; // a block inherits from ReliaWidget
+            if (blockName.startsWith("RELIA Vector Sink")) {
+              block = new ReliaVectorSinkLite(
+                $divContents,
+                blockName,
+                blockJson.timedData[0].data.data
+              );
+            } else if (blockName.startsWith("RELIA Frequency Sink")) {
+              block = new FrequencySinkLite(
+                $divContents,
+                blockName,
+                blockJson.timedData[0].data.data
+              );
+            } else {
+              // Add more blocks here
+              console.log("Unsupported block: ", blockName);
+              return;
+            }
+
+            ////////// Old Blocks /////////////
+            //   if (blockName.startsWith("RELIA Constellation Sink")) {
+            //     block = new ReliaConstellationSink(
+            //       $divContents,
+            //       deviceName,
+            //       blockName,
+            //       self.taskId
+            //     );
+            //   } else if (blockName.startsWith("RELIA Time Sink")) {
+            //     block = new ReliaTimeSink($divContents, deviceName, blockName, self.taskId);
+            //   } else if (blockName.startsWith("RELIA Variable Range")) {
+            //     block = new ReliaVariableRange($divContents, deviceName, blockName, self.taskId);
+            //   } else if (blockName.startsWith("RELIA Histogram Sink")) {
+            //     block = new ReliaHistogramSink($divContents, deviceName, blockName, self.taskId);
+            //   } else if (blockName.startsWith("RELIA Variable CheckBox")) {
+            //     block = new ReliaCheckBox($divContents, deviceName, blockName, self.taskId);
+            //   } else if (blockName.startsWith("RELIA Variable PushButton")) {
+            //     block = new ReliaPushButton($divContents, deviceName, blockName, self.taskId);
+            //   } else if (blockName.startsWith("RELIA Variable Chooser")) {
+            //     block = new ReliaChooser($divContents, deviceName, blockName, self.taskId);
+            //   } else if (blockName.startsWith("RELIA Number Sink")) {
+            //     block = new ReliaNumberSink($divContents, deviceName, blockName, self.taskId);
+            //   } else if (blockName.startsWith("RELIA Eye Plot")) {
+            //     block = new ReliaEyePlot($divContents, deviceName, blockName, self.taskId);
+            //   } else {
+            //     // Add more blocks here
+            //     console.log("Unsupported block: ", blockName);
+            //     return;
+            //   }
+            $newDiv.find("h5.deviceTitle").text(block.translatedIdentifier());
+            self.blocks.push(block);
+            self.blocksById[deviceName][blockName] = block;
+            block.start();
           } else {
-            // Add more blocks here
-            console.log("Unsupported block: ", blockName);
-            return;
+            if (self.blocksById[deviceName]) {
+              var block = self.blocksById[deviceName][blockName];
+              if (block && !block.running) block.start();
+            }
           }
-          $newDiv.find("h5.deviceTitle").text(block.translatedIdentifier());
-          self.blocks.push(block);
-          self.blocksById[deviceName][blockName] = block;
-          block.start();
-        } else {
-          if (self.blocksById[deviceName]) {
-            var block = self.blocksById[deviceName][blockName];
-            if (block && !block.running) block.start();
-          }
-        }
-        //});
+        });
         //});
       });
       //}

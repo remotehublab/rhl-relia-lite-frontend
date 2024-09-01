@@ -1,20 +1,17 @@
 import $ from "jquery";
 
-class ReliaWidget {
-  constructor($divElement, deviceIdentifier, blockIdentifier, taskIdentifier) {
+class ReliaWidgetLite {
+  constructor($divElement, blockIdentifier, blockJson) {
     this.$div = $divElement;
-    this.deviceIdentifier = deviceIdentifier;
     this.blockIdentifier = blockIdentifier;
-    this.taskIdentifier = taskIdentifier;
-    this.url =
-      process.env.REACT_APP_RECORDINGS_BASE_URL +
-      window.API_BASE_URL +
-      "data/tasks/" +
-      taskIdentifier +
-      "/devices/" +
-      deviceIdentifier +
-      "/blocks/" +
-      blockIdentifier;
+    this.block = blockJson;
+    // window.API_BASE_URL +
+    // "data/tasks/" +
+    // taskIdentifier +
+    // "/devices/" +
+    // deviceIdentifier +
+    // "/blocks/" +
+    // blockIdentifier;
     this.running = false;
   }
 
@@ -27,35 +24,26 @@ class ReliaWidget {
   performRequest() {
     var self = this;
 
-    if (!this.running) return;
+    if (!self.running) return;
+    if (!self.block) return;
 
-    $.get(this.url)
-      .done(function (response) {
-        if (!self.running) return;
+    console.log("performing request, self.block: ", self.block);
 
-        if (!response.success) {
-          console.log("Error on request" + self.url + ": " + response.message, response);
-          return;
-        }
+    if (!self.block.success) {
+      console.log("Block was not successfull");
+      return;
+    }
 
-        if (response.data == null) return;
+    if (self.block.data == null) return;
 
-        // call redraw just after
-        setTimeout(function () {
-          self.redraw();
-          self.performRequest();
-        });
+    // call redraw just after
+    setTimeout(function () {
+      self.redraw();
+      self.performRequest();
+    });
 
-        self.handleResponseData(response.data);
-      })
-      .fail(function () {
-        // failing is not stopping (unless they tell us to stop)
-        if (!self.running) return;
-
-        setTimeout(function () {
-          self.performRequest();
-        });
-      });
+    console.log("handling data!");
+    self.handleResponseData(self.block);
   }
 
   /*
@@ -98,4 +86,4 @@ class ReliaWidget {
   }
 }
 
-export default ReliaWidget;
+export default ReliaWidgetLite;
