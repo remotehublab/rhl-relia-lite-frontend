@@ -51,9 +51,11 @@ function LaboratoryLite({
   };
 
   const refreshTask = () => {
+    console.log("Resfreshing Task");
     if (reliaWidgets !== null) {
       reliaWidgets.stop();
       reliaWidgets.clean();
+      console.log("Widgets cleaned");
     }
 
     fetch(`${process.env.REACT_APP_API_BASE_URL}/api/user/tasks/`, {

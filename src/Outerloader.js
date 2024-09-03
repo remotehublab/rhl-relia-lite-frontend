@@ -204,12 +204,13 @@ function Outerloader() {
   const getUserData = () => {
     console.log("CALLED getUserData");
     fetch(`${process.env.REACT_APP_API_BASE_URL}/api/user/poll`, {
-      method: "GET",
+      method: "FETCH",
     })
       .then((response) => {
         console.log("response:", response);
         if (response.ok) {
           // Check if response is ok
+          console.log("response was okay so returning json");
           return response.json();
         } else {
           throw new Error("Network response was not ok.");
@@ -231,7 +232,7 @@ function Outerloader() {
         setUserData(data);
       })
       .catch((error) => {
-        console.error("Fetch error:", error.message);
+        console.error("Fetch error getting user data:", error.message);
       });
 
     // fetch(`${process.env.REACT_APP_API_BASE_URL}/api/user/files/`, {
@@ -419,24 +420,21 @@ function Outerloader() {
           const URLs = getURLs(data.recordings);
           const newSession = {
             // "taskIdentifier": null, //data.taskIdentifier,
-            status: data.status, //data.status,
+            status: "fully-assigned", //data.status,
             message: null, //data.message,
             // "assignedInstance": null,
             // "assignedInstanceName": t("runner.no-instance-yet"),
             configurationFoldername: configurationFoldername,
             dataUrl: URLs["dataUrl"],
             cameraUrl: URLs["videoUrl"],
-            renderingWidgets: currentSession.renderingWidgets,
+            renderingWidgets: true,
           };
           setCurrentSession(newSession);
           Object.assign(currentSession, newSession);
           console.log(currentSession);
           setSelectedTab("laboratory-lite");
         } else {
-          if (setFileStatus) {
-            setFileStatus(<a>Error sending files, please try again</a>);
-          }
-          console.error("Failed to create task");
+          console.error("Fetch successfull, data is invalid");
         }
       })
       .catch((error) => {
@@ -505,11 +503,11 @@ function Outerloader() {
         console.log(data);
         if (data.success) {
           const newSession = {
-            // "taskIdentifier": currentSession.taskIdentifier,
+            //"taskIdentifier": currentSession.taskIdentifier,
             status: data.status,
             message: data.message,
-            // "assignedInstance": data.assignedInstance,
-            // "assignedInstanceName": data.assignedInstance,
+            assignedInstance: data.assignedInstance,
+            assignedInstanceName: data.assignedInstance,
             configurationFilename: null,
             dataUrl: null,
             cameraUrl: data.cameraUrl,
@@ -533,8 +531,12 @@ function Outerloader() {
         } else {
           console.error("Failed to check status:", data.message);
         }
+      })
+      .catch((error) => {
+        console.error("Fetch error getting User data: ", error);
       });
   };
+
   /**
    * Fetches and displays the library of files for the user.
    *

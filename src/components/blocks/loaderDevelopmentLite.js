@@ -183,7 +183,7 @@ export class ReliaWidgets {
                 blockName,
                 blockJson.timedData[0].data.data
               );
-            } else if (blockName.startsWith("RELIA Frequency Sink")) {
+            } else if (blockName.startsWith("Frequency Sink")) {
               block = new FrequencySinkLite(
                 $divContents,
                 blockName,
