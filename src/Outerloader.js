@@ -69,11 +69,7 @@ function Outerloader() {
   //const [selectedConfiguration, setConfiguration] = useState(emptyOptions);
   const [selectedConfiguration, setSelectedConfiguration] = useState({});
 
-  const [fileStatus, setFileStatus] = useState(
-    <a href="https://rhlab.ece.uw.edu/projects/relia/" target="_blank" rel="noopener noreferrer">
-      Upload GNU radio files to proceed TEST
-    </a>
-  );
+  const [fanSpeed, setFanSpeed] = useState(1);
 
   // Set a global variable for the base API URL.
   window.API_BASE_URL = `${process.env.REACT_APP_API_BASE_URL}/api/`;
@@ -167,12 +163,10 @@ function Outerloader() {
           <LaboratoryLite
             currentSession={currentSession}
             setCurrentSession={setCurrentSession}
+            fanSpeed = {fanSpeed}
             setReliaWidgets={setReliaWidgets}
             reliaWidgets={reliaWidgets}
-            fileStatus={fileStatus}
-            setFileStatus={setFileStatus}
             checkStatus={checkStatus}
-            manageTask={manageTask}
           />
         );
 
@@ -234,36 +228,6 @@ function Outerloader() {
       .catch((error) => {
         console.error("Fetch error getting user data:", error.message);
       });
-
-    // fetch(`${process.env.REACT_APP_API_BASE_URL}/api/user/files/`, {
-    //     method: 'GET',
-    //     headers: {
-    //         'Content-Type': 'application/json'
-    //     }
-    // })
-    // .then(response => {
-    //     if (response.ok) {
-    //         return response.json();
-    //     } else {
-    //         throw new Error('Network response was not ok.');
-    //     }
-    // })
-    // .then(data => {
-    //     if (data.success) {
-    //         // Access the list of files from the response
-    //         const files = data.files;
-    //         setStoredFiles(files);
-    //         const selectedRXFiles = data.metadata['receiver'];
-    //         setSelectedFilesColumnRX(selectedRXFiles);
-    //         const selectedTXFiles = data.metadata['transmitter'];
-    //         setSelectedFilesColumnTX(selectedTXFiles);
-    //     } else {
-    //         console.error('Error fetching files:', data.message);
-    //     }
-    // })
-    // .catch(error => {
-    //     console.error('Error:', error.message);
-    // });
   };
 
   /**
@@ -309,70 +273,11 @@ function Outerloader() {
       });
   };
 
-  /**
-   * Initiates a new task for processing and switches the user to the "Laboratory" tab.
-   *
-   * This function is responsible for starting a new processing task with the server.
-   * the task's details are updated in the current session,
-   * and the user interface is redirected to the "Laboratory" tab where the task progress
-   * can be monitored. This function is an essential part of the workflow in the SDR (Software Defined Radio)
-   * operation setup, where it marks the transition from file selection and setup to the actual
-   * processing and observation phase in the "Laboratory" tab.
-   *
-   * On a successful server response, the current session state is updated with the new task's
-   * identifier, status, and message. This function also initiates a status check loop by calling
-   * `checkStatus` function, which repeatedly checks the status of the newly created task.
-   *
-   * Usage:
-   * This function is typically called when a user has finished setting up files for transmission
-   * and reception and is ready to start the processing task. It represents a key action in the
-   * workflow of submitting and monitoring tasks in the application.
-   *
-   */
-  const manageTask = () => {
-    fetch(`${process.env.REACT_APP_API_BASE_URL}/api/user/tasks/`, {
-      method: "POST",
-    })
-      .then((response) => {
-        if (response.status === 200) {
-          return response.json();
-        } else {
-          // TODO
-          console.log("Failed to fetch: Status " + response.status);
-          setFileStatus(<a>Error sending files, please try again</a>);
-        }
-      })
-      .then((data) => {
-        if (data && data.success) {
-          const newSession = {
-            // "taskIdentifier": data.taskIdentifier,
-            status: data.status,
-            message: data.message,
-            // "assignedInstance": null,
-            // "assignedInstanceName": t("runner.no-instance-yet"),
-            configurationFilename: null,
-            dataUrl: null,
-            cameraUrl: null,
-            renderingWidgets: currentSession.renderingWidgets,
-          };
-          setCurrentSession(newSession);
-          Object.assign(currentSession, newSession);
-          console.log(currentSession);
-          setTimeout(checkStatus, 1000);
-          setSelectedTab("laboratory");
-        } else {
-          if (setFileStatus) {
-            setFileStatus(<a>Error sending files, please try again</a>);
-          }
-          console.error("Failed to create task");
-        }
-      });
-  };
 
   /**
    * Initiates a new task for processing and switches the user to the "Laboratory" tab.
    *
-   * This function is responsible for updating the current session's configuratin folder, data URL, and video URL
+   * This function is responsible for updating the current session's configuratin folder, fan speed, data URL, and video URL
    * so these can be used to get the necessary information in the Laboratory tab / Laboratory Lite component.
    * The task's details are updated in the current session,
    * and the user interface is redirected to the "Laboratory" tab (Laboratory Lite).
@@ -395,7 +300,19 @@ function Outerloader() {
     console.log("LOADING CONFIGURATION");
     var configurationFoldername = "";
     for (const parameter of Object.keys(selectedConfiguration)) {
+      // Build folder name param by param
       configurationFoldername += parameter + "_" + selectedConfiguration[parameter] + "_";
+      // If current param is velocity then set fan speed
+      if(parameter == "target-velocity") {
+        console.log(parameter, " = ", selectedConfiguration[parameter]);
+        if (selectedConfiguration[parameter] == "slow") {
+          setFanSpeed(0.25);
+        } else if (selectedConfiguration[parameter] == "medium") {
+          setFanSpeed(1);
+        } else if (selectedConfiguration[parameter] == "fast") {
+          setFanSpeed(2.5);
+        }
+      }
     }
     configurationFoldername = configurationFoldername.substring(
       0,
@@ -411,7 +328,6 @@ function Outerloader() {
         } else {
           // TODO
           console.log("Failed to fetch: Status " + response.status);
-          setFileStatus(<a>Error receiving files, please try again</a>);
         }
       })
       .then((data) => {
@@ -441,9 +357,6 @@ function Outerloader() {
       })
       .catch((error) => {
         console.error("There was an error with the fetch operation:", error);
-        if (setFileStatus) {
-          setFileStatus(<a>Unexpected error occurred, please try again</a>);
-        }
       });
   };
 

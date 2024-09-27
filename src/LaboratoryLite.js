@@ -21,12 +21,9 @@ import BabylonIframe from "./BabylonIFrame";
 function LaboratoryLite({
   currentSession,
   setCurrentSession,
+  fanSpeed,
   reliaWidgets,
   setReliaWidgets,
-  fileStatus,
-  setFileStatus,
-  manageTask,
-  checkStatus,
 }) {
   const [cameraURLSeed, setCameraURlSeed] = useState(0);
   const [showCamera, setShowCamera] = useState(false);
@@ -58,53 +55,52 @@ function LaboratoryLite({
       console.log("Widgets cleaned");
     }
 
-    fetch(`${process.env.REACT_APP_API_BASE_URL}/api/user/tasks/`, {
-      method: "POST",
-    })
-      .then((response) => {
-        if (response.status === 200) {
-          return response.json();
-        } else {
-          // TODO
-          console.log("Failed to fetch: Status " + response.status);
-          setFileStatus(<a>Error sending files, please try again</a>);
-        }
-      })
-      .then((data) => {
-        if (data && data.success) {
-          const newSession = {
-            taskIdentifier: data.taskIdentifier,
-            status: data.status,
-            message: data.message,
-            assignedInstance: null,
-            assignedInstanceName: t("runner.no-instance-yet"),
-            configurationFoldername: null,
-            dataUrl: null,
-            cameraUrl: null,
-            renderingWidgets: currentSession.renderingWidgets,
-          };
-          setCurrentSession(newSession);
+    // fetch(`${process.env.REACT_APP_API_BASE_URL}/api/user/tasks/`, {
+    //   method: "POST",
+    // })
+    //   .then((response) => {
+    //     if (response.status === 200) {
+    //       return response.json();
+    //     } else {
+    //       // TODO
+    //       console.log("Failed to fetch: Status " + response.status);
+    //     }
+    //   })
+    //   .then((data) => {
+    //     if (data && data.success) {
+    //       const newSession = {
+    //         taskIdentifier: data.taskIdentifier,
+    //         status: data.status,
+    //         message: data.message,
+    //         assignedInstance: null,
+    //         assignedInstanceName: t("runner.no-instance-yet"),
+    //         configurationFoldername: null,
+    //         dataUrl: null,
+    //         cameraUrl: null,
+    //         renderingWidgets: currentSession.renderingWidgets,
+    //       };
+    //       setCurrentSession(newSession);
 
-          Object.assign(currentSession, newSession);
-          console.log("LABORATORY LITE REFRESH");
-          console.log(currentSession);
-          setTimeout(checkStatus, 1000);
+    //       Object.assign(currentSession, newSession);
+    //       console.log("LABORATORY LITE REFRESH");
+    //       console.log(currentSession);
+    //       setTimeout(checkStatus, 1000);
 
-          const newReliaWidgets = new ReliaWidgets(
-            $("#relia-widgets"),
-            data.taskIdentifier,
-            currentSessionRef
-          );
-          newReliaWidgets.start();
-          console.log("STARTING RELIA WIDGETS - REFRESH TASK");
-          setReliaWidgets(newReliaWidgets);
-        } else {
-          if (setFileStatus) {
-            setFileStatus(<a>Error sending files, please try again</a>);
-          }
-          console.error("Failed to create task");
-        }
-      });
+    //       const newReliaWidgets = new ReliaWidgets(
+    //         $("#relia-widgets"),
+    //         data.taskIdentifier,
+    //         currentSessionRef
+    //       );
+    //       newReliaWidgets.start();
+    //       console.log("STARTING RELIA WIDGETS - REFRESH TASK");
+    //       setReliaWidgets(newReliaWidgets);
+    //     } else {
+    //       if (setFileStatus) {
+    //         setFileStatus(<a>Error sending files, please try again</a>);
+    //       }
+    //       console.error("Failed to create task");
+    //     }
+    //   });
   };
 
   const shouldCameraReloadInCurrentStatus = () => {
@@ -279,7 +275,7 @@ function LaboratoryLite({
         </Col>
       </Row>
       <Row>
-        <BabylonIframe />
+        <BabylonIframe fanSpeed={fanSpeed}/>
       </Row>
     </Container>
   );
