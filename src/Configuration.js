@@ -101,16 +101,20 @@ function Configuration({
     };
 
     return (
-        <Container>
+        <Container style={{ margin: '10px' }}>
             <Col md={{ span: 8, offset: 2 }}>
                 <Row>
                     {generateOptionsButtons()}
                 </Row>
                 {/* Continue Button */}
-                <button className={"loader-button"} onClick={() => loadConfiguration()} 
-                    disabled={!allSelected}>
-                    {t("loader.configuration.load-configuration")}
-                </button>
+                <Row className="justify-content-center">
+                    <Col xs="auto">
+                        <button className={"loader-button btn btn-primary"} onClick={() => loadConfiguration()} 
+                            disabled={!allSelected}>
+                            {t("loader.configuration.load-configuration")}
+                        </button>
+                    </Col>
+                </Row>
             </Col>
         </Container>
     );
