@@ -48,6 +48,16 @@
     <script>
       var canvas = document.getElementById("renderCanvas");
 
+      // Function to get URL parameters
+      function getQueryParam(param) {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(param);
+      }
+
+      // Get the fanSpeed from the URL parameters, or use a default value of 1
+      var initialFanSpeed = parseFloat(getQueryParam('fanSpeed')) || 2;
+      console.log("fanSpeed:", initialFanSpeed);
+
       var startRenderLoop = function (engine, canvas) {
         engine.runRenderLoop(function () {
           if (sceneToRender && sceneToRender.activeCamera) {
@@ -61,6 +71,8 @@
       var createDefaultEngine = function() { 
         return new BABYLON.Engine(canvas, true, { preserveDrawingBuffer: true, stencil: true, disableWebGL2Support: false }); 
       };
+
+      let fanAnimationGroup;
       
       var delayCreateScene = function () {
         // Create the scene variable with lighting
@@ -85,10 +97,13 @@
             fan.position = new BABYLON.Vector3(tableLength / 2.5, tableHeight, 0);
             fan.rotation = new BABYLON.Vector3(Math.PI, Math.PI, Math.PI);  // rotate fan
             fan.scaling = new BABYLON.Vector3(4, 4, 4); // increase size
-            // Start the fan's animation
+
+            // Store the animation group & start the fan's animation
             if (animationGroups.length > 0) {
-              console.log("ANIMATION STARTING")
-              animationGroups[0].start(true); // true for looping
+              console.log("ANIMATION STARTING");
+              fanAnimationGroup = animationGroups[0];
+              fanAnimationGroup.start(true); // true for looping
+              fanAnimationGroup.speedRatio = initialFanSpeed; // Set the initial speed from the URL
             }
           });
 
@@ -101,6 +116,15 @@
         });
 
         return scene;  // Return from delayCreateScene
+      };
+
+      window.setFanSpeed = function (speed) {
+        if (fanAnimationGroup) {
+          console.log("Setting fan speed to: ", speed);
+          fanAnimationGroup.speedRatio = speed;
+        } else {
+          console.log("Fan animation group not ready.");
+        }
       };
 
       window.initFunction = async function() {
