@@ -13,10 +13,12 @@ class ReliaWidgetLite {
     // "/blocks/" +
     // blockIdentifier;
     this.running = false;
+    this.startTime = 0;
   }
 
   start() {
     this.running = true;
+    this.startTime = new Date().getTime();
     this.redraw();
     this.performRequest();
   }
@@ -27,23 +29,31 @@ class ReliaWidgetLite {
     if (!self.running) return;
     if (!self.block) return;
 
-    console.log("performing request, self.block: ", self.block);
-
-    if (!self.block.success) {
-      console.log("Block was not successfull");
-      return;
+    var elapsedTimeInMillis = new Date().getTime() - self.startTime;
+    var selectedBlock = self.block.timedData[0];
+    for (var i = 0; i < self.block.timedData.length; i++) {
+      if (self.block.timedData[i].t * 1000 > elapsedTimeInMillis) {
+        break;
+      }
+      selectedBlock = self.block.timedData[i];
     }
 
-    if (self.block.data == null) return;
+    console.log("selectedBlock for", self.blockIdentifier, " t=", selectedBlock.t, "elapsedTimeInMillis: ", elapsedTimeInMillis);
+
+    var currentMomentData = selectedBlock.data.data;
+
+    console.log("performing request, self.block: ", currentMomentData);
+
+    if (currentMomentData.data == null) return;
 
     // call redraw just after
     setTimeout(function () {
       self.redraw();
       self.performRequest();
-    });
+    }, 1000);
 
     console.log("handling data!");
-    self.handleResponseData(self.block);
+    self.handleResponseData(currentMomentData);
   }
 
   /*

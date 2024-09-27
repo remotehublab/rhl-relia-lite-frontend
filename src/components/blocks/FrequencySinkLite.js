@@ -325,6 +325,16 @@ export class FrequencySinkLite extends ReliaWidgetLite {
   }
 
   handleResponseData(data) {
+
+
+    console.log("About to check", data);
+    for(var i = 0; i < data.data.streams['0'].real.length; i++) {
+      var foo = parseFloat(data.data.streams['0'].real[i]);
+      if (foo > 0) {
+        console.log("Drawing", foo);
+      }
+    }
+
     var self = this;
     var params = data.params;
 

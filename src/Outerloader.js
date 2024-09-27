@@ -428,6 +428,8 @@ function Outerloader() {
             dataUrl: URLs["dataUrl"],
             cameraUrl: URLs["videoUrl"],
             renderingWidgets: true,
+            assignedInstance: "uw-relia-lite-1",
+            assignedInstanceName: "uw-relia-lite-1"
           };
           setCurrentSession(newSession);
           Object.assign(currentSession, newSession);
